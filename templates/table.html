@@ -1,0 +1,83 @@
+<html>
+    <head>
+      <meta http-equiv="refresh" content="300" >
+          <!-- Latest compiled and minified CSS -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+      <!-- Optional theme -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+      <!-- Latest compiled and minified JavaScript -->
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+      <style>
+      table {
+        font-size: 24px;
+      }
+      </style>
+    </head>
+
+    <body>
+        <div class="col-xs-4">
+          <table class="table table-striped">
+              <thead>
+                  <tr>
+                      <th>#</th>
+                      <th>Player</th>
+                      <th>Elo</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for name, elo in table_a %}
+                  <tr>
+                      <th scope="row">{{ loop.index }}</th>
+                      <td>{{ name }}</td>
+                      <td>{{ elo }}</td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+        </div>
+
+        <div class="col-xs-4">
+          <table class="table table-striped">
+              <thead>
+                  <tr>
+                      <th>#</th>
+                      <th>Player</th>
+                      <th>Elo</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for name, elo in table_b %}
+                  <tr>
+                      <th scope="row">{{ loop.index + num_rows }}</th>
+                      <td>{{ name }}</td>
+                      <td>{{ elo }}</td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+        </div>
+
+        <div class="col-xs-4">
+          <table class="table table-striped">
+              <thead>
+                  <tr>
+                      <th>#</th>
+                      <th>Player</th>
+                      <th>Elo</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for name, elo in table_c %}
+                  <tr>
+                      <th scope="row">{{ loop.index + num_rows + num_rows }}</th>
+                      <td>{{ name }}</td>
+                      <td>{{ elo }}</td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+        </div>
+    </body>
+</html>
