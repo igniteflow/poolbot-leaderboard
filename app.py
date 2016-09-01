@@ -1,3 +1,4 @@
+import logging
 import os
 
 import requests
@@ -10,10 +11,10 @@ from flask import (
 from cache import Cache
 
 
-SLACK_NAMES = None
-POOLBOT_PLAYERS_API_URL = os.environ['POOLBOT_URL']
-POOLBOT_AUTH_TOKEN = os.environ['POOLBOT_TOKEN']
-SLACK_API_TOKEN = os.environ['SLACK_API_TOKEN']
+SLACK_NAMES = {}
+POOLBOT_PLAYERS_API_URL = os.environ.get('POOLBOT_URL')
+POOLBOT_AUTH_TOKEN = os.environ.get('POOLBOT_TOKEN')
+SLACK_API_TOKEN = os.environ.get('SLACK_API_TOKEN')
 PLAYERS_CACHE_TIMEOUT = 60 * 5
 
 cache = Cache()
@@ -27,11 +28,15 @@ response = requests.get(
         token=SLACK_API_TOKEN
     )
 )
-SLACK_NAMES = {
-    u['name']: u['real_name']
-    for u in response.json()['members']
-    if 'real_name' in u
-}
+content = response.json()
+if content['ok']:
+    SLACK_NAMES = {
+        u['name']: u['real_name']
+        for u in content['members']
+        if 'real_name' in u
+    }
+else:
+    logging.error(content['error'])
 
 
 def get_players():
@@ -45,12 +50,16 @@ def get_players():
             Authorization='Token {}'.format(POOLBOT_AUTH_TOKEN),
         )
     )
-    players = response.json()
-    return [
-        (SLACK_NAMES.get(player['name'], player['name']), player['elo'])
-        for player in players
-        if player['active'] and player['total_match_count'] > 0
-    ]
+    if response.ok:
+        players = response.json()
+        return [
+            (SLACK_NAMES.get(player['name'], player['name']), player['elo'])
+            for player in players
+            if player['active'] and player['total_match_count'] > 0
+        ]
+    else:
+        logging.error(response.content)
+        return []
 
 
 app = Flask(__name__)
@@ -72,6 +81,7 @@ def index():
         table_b=players[num_rows:num_rows + num_rows],
         table_c=players[num_rows + num_rows:num_rows + num_rows + num_rows],
         num_rows=num_rows,
+        time_left=cache.time_remaining(cache_key),
     )
 
 if __name__ == "__main__":
