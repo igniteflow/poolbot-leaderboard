@@ -7,7 +7,7 @@ xset s noblank
 xset -dpms
 
 # kill active processes
-ps axf | grep "python app.py" | grep -v grep | awk '{print "kill -9 " $1}' | sh
+ps axf | grep "flask run" | grep -v grep | awk '{print "kill -9 " $1}' | sh
 killall -15 chromium-browser
 
 # start the server and fire up the browser
