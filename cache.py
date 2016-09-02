@@ -10,14 +10,18 @@ class Cache(object):
         if item and not self.has_expired(key):
             return item['value']
 
-    def set(self, key, value, timeout):
+    def set(self, key, value, timeout=None):
         now = time.time()
         self._cache[key] = dict(value=value, start=now, timeout=timeout)
 
     def time_remaining(self, key):
         item = self._cache.get(key)
-        elapsed = time.time() - item['start']
-        return item['timeout'] - elapsed
+        if item['timeout'] is not None:
+            elapsed = time.time() - item['start']
+            return item['timeout'] - elapsed
 
     def has_expired(self, key):
+        item = self._cache.get(key)
+        if item['timeout'] is None:
+            return False
         return self.time_remaining(key) <= 0

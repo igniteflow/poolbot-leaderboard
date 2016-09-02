@@ -26,14 +26,22 @@
                       <th>#</th>
                       <th>Player</th>
                       <th>Elo</th>
+                      <th></th>
                   </tr>
               </thead>
               <tbody>
-                  {% for name, elo in table_a %}
-                  <tr>
+                  {% for player in table_a %}
+                  <tr class="{% if player.diff > 0 %}success{% elif player.diff < 0 %}danger{% endif %}">
                       <th scope="row">{{ loop.index }}</th>
-                      <td>{{ name }}</td>
-                      <td>{{ elo }}</td>
+                      <td>{{ player.name }}</td>
+                      <td>{{ player.elo }}</td>
+                      <td>
+                        {% if player.diff > 0 %}
+                        <button type="button" class="btn btn-success">+{{player.diff}}</button>
+                        {% elif player.diff < 0 %}
+                        <button type="button" class="btn btn-danger">-{{player.diff}}</button>
+                        {% endif %}
+                      </td>
                   </tr>
                   {% endfor %}
               </tbody>
@@ -50,15 +58,22 @@
                   </tr>
               </thead>
               <tbody>
-                  {% for name, elo in table_b %}
-                  <tr>
+                  {% for player in table_b %}
+                  <tr class="{% if player.diff > 0 %}success{% elif player.diff < 0 %}danger{% endif %}">
                       <th scope="row">{{ loop.index + num_rows }}</th>
-                      <td>{{ name }}</td>
-                      <td>{{ elo }}</td>
+                      <td>{{ player.name }}</td>
+                      <td>{{ player.elo }}</td>
+                      <td>
+                        {% if player.diff > 0 %}
+                        <button type="button" class="btn btn-success">+{{player.diff}}</button>
+                        {% elif player.diff < 0 %}
+                        <button type="button" class="btn btn-danger">-{{player.diff}}</button>
+                        {% endif %}
+                      </td>
                   </tr>
                   {% endfor %}
               </tbody>
-          </table>
+            </table>
         </div>
 
         <div class="col-xs-4">
@@ -71,11 +86,18 @@
                   </tr>
               </thead>
               <tbody>
-                  {% for name, elo in table_c %}
-                  <tr>
+                  {% for player in table_c %}
+                  <tr class="{% if player.diff > 0 %}success{% elif player.diff < 0 %}danger{% endif %}">
                       <th scope="row">{{ loop.index + num_rows + num_rows }}</th>
-                      <td>{{ name }}</td>
-                      <td>{{ elo }}</td>
+                      <td>{{ player.name }}</td>
+                      <td>{{ player.elo }}</td>
+                      <td>
+                        {% if player.diff > 0 %}
+                        <button type="button" class="btn btn-success">+{{player.diff}}</button>
+                        {% elif player.diff < 0 %}
+                        <button type="button" class="btn btn-danger">-{{player.diff}}</button>
+                        {% endif %}
+                      </td>
                   </tr>
                   {% endfor %}
               </tbody>
