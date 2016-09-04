@@ -1,13 +1,13 @@
 import logging
 import os
 
-from copy import copy
-
 import requests
 
 from flask import (
     Flask,
     render_template,
+    send_from_directory,
+    json,
 )
 
 from cache import Cache
@@ -41,7 +41,7 @@ def slack_names():
     else:
         logging.error(content['error'])
 
-slack_names()
+# slack_names()
 
 
 def get_diff(player):
@@ -82,26 +82,39 @@ def get_players():
         return []
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
+
+
+@app.route('/js/<path:path>')
+def send_js(path):
+    return send_from_directory('js', path)
+
+
+@app.route('/css/<path:path>')
+def send_css(path):
+    return send_from_directory('css', path)
+
+
+@app.route('/api/')
+def api():
+    from random import randint
+    players = [{'name': 'John ' + str(i), 'elo': 1000, 'position': i, 'diff': randint(-10, 10)} for i in range(60)]
+    return json.dumps(players)
 
 
 @app.route("/")
 def index():
-    num_rows = 20
+    # num_rows = 20
 
-    players = cache.get(PLAYERS_CACHE_KEY)
-    if players is None:
-        players = get_players()
-        cache.set(PLAYERS_CACHE_KEY, players, timeout=PLAYERS_CACHE_TIMEOUT)
-        cache.set(PREVIOUS_STATE_CACHE_KEY, players)
+    # players = cache.get(PLAYERS_CACHE_KEY)
+    # if players is None:
+    #     players = get_players()
+    #     cache.set(PLAYERS_CACHE_KEY, players, timeout=PLAYERS_CACHE_TIMEOUT)
+    #     cache.set(PREVIOUS_STATE_CACHE_KEY, players)
 
     return render_template(
-        'table.html',
-        table_a=players[:num_rows],
-        table_b=players[num_rows:num_rows + num_rows],
-        table_c=players[num_rows + num_rows:num_rows + num_rows + num_rows],
-        num_rows=num_rows,
-        time_left=cache.time_remaining(PLAYERS_CACHE_KEY),
+        'react.html',
+        # time_left=cache.time_remaining(PLAYERS_CACHE_KEY),
     )
 
 if __name__ == "__main__":

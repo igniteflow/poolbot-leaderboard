@@ -104,26 +104,34 @@
           </table>
         </div>
 
+        <div id="container">
+    <!-- This element's contents will be replaced with your component. -->
+</div>
+
         <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+        <script src="/static/js/react-with-addons.min.js"></script>
+        <script src="/static/js/react-dom.min.js"></script>
+        <script src="/static/js/site.js"></script>
+
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js"></script>
 
         <script>
-          var next_refresh = moment().add({{ time_left }}, 'seconds');
-
-          $(function(){
-              setInterval(function(){
-                  var secondsLeft = next_refresh.diff(moment(), 'seconds');
-
-                  if (secondsLeft <= 0) {
-                      location.reload();
-                  }
-
-                  var percent = Math.floor((secondsLeft / 60) * 100);
-                  var width = percent.toString() + '%';
-                  $('.progress-bar').width(width);
-              }, 1000);
-          });
+        //   var next_refresh = moment().add({{ time_left }}, 'seconds');
+          //
+        //   $(function(){
+        //       setInterval(function(){
+        //           var secondsLeft = next_refresh.diff(moment(), 'seconds');
+          //
+        //           if (secondsLeft <= 0) {
+        //               location.reload();
+        //           }
+          //
+        //           var percent = Math.floor((secondsLeft / 60) * 100);
+        //           var width = percent.toString() + '%';
+        //           $('.progress-bar').width(width);
+        //       }, 1000);
+        //   });
         </script>
 
     </body>
