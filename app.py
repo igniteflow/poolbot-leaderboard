@@ -20,6 +20,7 @@ POOLBOT_PLAYERS_API_URL = os.environ.get('POOLBOT_URL')
 POOLBOT_AUTH_TOKEN = os.environ.get('POOLBOT_TOKEN')
 SLACK_API_TOKEN = os.environ.get('SLACK_API_TOKEN')
 PLAYERS_CACHE_TIMEOUT = 60
+
 cache = Cache()
 
 
@@ -95,27 +96,31 @@ def send_css(path):
     return send_from_directory('css', path)
 
 
+def _dummmy_api_data():
+    from random import randint
+    return json.dumps(
+        [
+            {'name': 'John ' + str(i), 'elo': 1000, 'position': i, 'diff': randint(-10, 10)}
+            for i in range(50)
+        ]
+    )
+
+
 @app.route('/api/')
 def api():
-    from random import randint
-    players = [{'name': 'John ' + str(i), 'elo': 1000, 'position': i, 'diff': randint(-10, 10)} for i in range(60)]
+    # return _dummmy_api_data()
+    players = cache.get(PLAYERS_CACHE_KEY)
+    if players is None:
+        players = get_players()
+        cache.set(PLAYERS_CACHE_KEY, players, timeout=PLAYERS_CACHE_TIMEOUT)
+        cache.set(PREVIOUS_STATE_CACHE_KEY, players)
     return json.dumps(players)
 
 
 @app.route("/")
 def index():
-    # num_rows = 20
+    return render_template('react.html', time_left=cache.time_remaining(PLAYERS_CACHE_KEY))
 
-    # players = cache.get(PLAYERS_CACHE_KEY)
-    # if players is None:
-    #     players = get_players()
-    #     cache.set(PLAYERS_CACHE_KEY, players, timeout=PLAYERS_CACHE_TIMEOUT)
-    #     cache.set(PREVIOUS_STATE_CACHE_KEY, players)
-
-    return render_template(
-        'react.html',
-        # time_left=cache.time_remaining(PLAYERS_CACHE_KEY),
-    )
 
 if __name__ == "__main__":
     app.run(debug=True, threaded=True)

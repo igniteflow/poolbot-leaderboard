@@ -6,14 +6,6 @@ $( document ).ready(function() {
 var PlayerRow = React.createClass({
   displayName: 'PlayerRow',
 
-  diff: function diff() {
-    if (this.player.diff > 0) {
-      return '<button type="button" class="btn btn-success">+{{player.diff}}</button>';
-    } else if (this.player.diff < 0) {
-      return '<button type="button" class="btn btn-danger">-{{player.diff}}</button>';
-    }
-  },
-
   trClass: function trClass() {
     if (this.player.diff > 0) {
       return 'success';
@@ -23,11 +15,23 @@ var PlayerRow = React.createClass({
   },
 
   render: function render() {
-    var name = this.props.player.stocked ? this.props.player.name : React.createElement(
-      'span',
-      { style: { color: 'red' } },
-      this.props.player.name
-    );
+    var diffNode = '';
+    var diff = this.props.player.diff;
+    if (diff > 0) {
+      diffNode = React.createElement(
+        'button',
+        { type: 'button', className: 'btn btn-success' },
+        '+',
+        diff
+      );
+    } else if (diff < 0) {
+      diffNode = React.createElement(
+        'button',
+        { type: 'button', className: 'btn btn-danger' },
+        diff
+      );
+    }
+
     return React.createElement(
       'tr',
       { className: '{this.trClass}' },
@@ -49,7 +53,7 @@ var PlayerRow = React.createClass({
       React.createElement(
         'td',
         null,
-        this.diff
+        diffNode
       )
     );
   }
@@ -79,40 +83,123 @@ var PlayersTable = React.createClass({
     this.state.players.forEach(function (player) {
       rows.push(React.createElement(PlayerRow, { player: player, key: player.name }));
     });
+
+    var rowsA = rows.slice(0, 19);
+    var rowsB = rows.slice(20, 39);
+    var rowsC = rows.slice(40, 59);
+
     return React.createElement(
       'div',
-      { className: 'col-xs-4' },
+      null,
       React.createElement(
-        'table',
-        { className: 'table table-striped' },
+        'div',
+        { className: 'col-xs-4' },
         React.createElement(
-          'thead',
-          null,
+          'table',
+          { className: 'table table-striped' },
           React.createElement(
-            'tr',
+            'thead',
             null,
             React.createElement(
-              'th',
+              'tr',
               null,
-              '#'
-            ),
-            React.createElement(
-              'th',
-              null,
-              'Player'
-            ),
-            React.createElement(
-              'th',
-              null,
-              'Elo'
-            ),
-            React.createElement('th', null)
+              React.createElement(
+                'th',
+                null,
+                '#'
+              ),
+              React.createElement(
+                'th',
+                null,
+                'Player'
+              ),
+              React.createElement(
+                'th',
+                null,
+                'Elo'
+              ),
+              React.createElement('th', null)
+            )
+          ),
+          React.createElement(
+            'tbody',
+            null,
+            rowsA
           )
-        ),
+        )
+      ),
+      React.createElement(
+        'div',
+        { className: 'col-xs-4' },
         React.createElement(
-          'tbody',
-          null,
-          rows
+          'table',
+          { className: 'table table-striped' },
+          React.createElement(
+            'thead',
+            null,
+            React.createElement(
+              'tr',
+              null,
+              React.createElement(
+                'th',
+                null,
+                '#'
+              ),
+              React.createElement(
+                'th',
+                null,
+                'Player'
+              ),
+              React.createElement(
+                'th',
+                null,
+                'Elo'
+              ),
+              React.createElement('th', null)
+            )
+          ),
+          React.createElement(
+            'tbody',
+            null,
+            rowsB
+          )
+        )
+      ),
+      React.createElement(
+        'div',
+        { className: 'col-xs-4' },
+        React.createElement(
+          'table',
+          { className: 'table table-striped' },
+          React.createElement(
+            'thead',
+            null,
+            React.createElement(
+              'tr',
+              null,
+              React.createElement(
+                'th',
+                null,
+                '#'
+              ),
+              React.createElement(
+                'th',
+                null,
+                'Player'
+              ),
+              React.createElement(
+                'th',
+                null,
+                'Elo'
+              ),
+              React.createElement('th', null)
+            )
+          ),
+          React.createElement(
+            'tbody',
+            null,
+            rowsC
+          )
         )
       )
     );
