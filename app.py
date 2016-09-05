@@ -1,13 +1,13 @@
 import logging
 import os
 
-from copy import copy
-
 import requests
 
 from flask import (
     Flask,
     render_template,
+    send_from_directory,
+    json,
 )
 
 from cache import Cache
@@ -19,7 +19,8 @@ PLAYERS_CACHE_KEY = 'players'
 POOLBOT_PLAYERS_API_URL = os.environ.get('POOLBOT_URL')
 POOLBOT_AUTH_TOKEN = os.environ.get('POOLBOT_TOKEN')
 SLACK_API_TOKEN = os.environ.get('SLACK_API_TOKEN')
-PLAYERS_CACHE_TIMEOUT = 60
+PLAYERS_CACHE_TIMEOUT = 10
+
 cache = Cache()
 
 
@@ -67,42 +68,59 @@ def get_players():
     if response.ok:
         players = response.json()
         slack_names = cache.get(SLACK_NAMES_CACHE_KEY) or {}
-        return [
-            dict(
-                name=slack_names.get(player['slack_id'], player['name']),
-                elo=player['elo'],
-                diff=get_diff(player),
-                slack_id=player['slack_id'],
-            )
-            for player in players
-            if player['active'] and player['total_match_count'] > 0
-        ]
+        _players = []
+
+        i = 1
+        for player in players:
+            if player['active'] and player['total_match_count'] > 0:
+                _players.append(dict(
+                    name=slack_names.get(player['slack_id'], player['name']),
+                    elo=player['elo'],
+                    diff=get_diff(player),
+                    slack_id=player['slack_id'],
+                    position=i
+                ))
+                i += 1
+        return _players
     else:
         logging.error(response.content)
         return []
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 
 
-@app.route("/")
-def index():
-    num_rows = 20
+@app.route('/js/<path:path>')
+def send_js(path):
+    return send_from_directory('js', path)
 
+
+@app.route('/css/<path:path>')
+def send_css(path):
+    return send_from_directory('css', path)
+
+
+@app.route('/api/')
+def players():
     players = cache.get(PLAYERS_CACHE_KEY)
     if players is None:
         players = get_players()
         cache.set(PLAYERS_CACHE_KEY, players, timeout=PLAYERS_CACHE_TIMEOUT)
         cache.set(PREVIOUS_STATE_CACHE_KEY, players)
 
-    return render_template(
-        'table.html',
-        table_a=players[:num_rows],
-        table_b=players[num_rows:num_rows + num_rows],
-        table_c=players[num_rows + num_rows:num_rows + num_rows + num_rows],
-        num_rows=num_rows,
-        time_left=cache.time_remaining(PLAYERS_CACHE_KEY),
+    return json.dumps(
+        dict(
+            players=players,
+            secondsLeft=cache.time_remaining(PLAYERS_CACHE_KEY),
+            cacheLifetime=PLAYERS_CACHE_TIMEOUT
+        )
     )
+
+
+@app.route("/")
+def index():
+    return render_template('index.html')
+
 
 if __name__ == "__main__":
     app.run(debug=True, threaded=True)
