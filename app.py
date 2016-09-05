@@ -19,7 +19,7 @@ PLAYERS_CACHE_KEY = 'players'
 POOLBOT_PLAYERS_API_URL = os.environ.get('POOLBOT_URL')
 POOLBOT_AUTH_TOKEN = os.environ.get('POOLBOT_TOKEN')
 SLACK_API_TOKEN = os.environ.get('SLACK_API_TOKEN')
-PLAYERS_CACHE_TIMEOUT = 60
+PLAYERS_CACHE_TIMEOUT = 10
 
 cache = Cache()
 
@@ -100,7 +100,7 @@ def send_css(path):
     return send_from_directory('css', path)
 
 
-@app.route('/players/')
+@app.route('/api/')
 def players():
     players = cache.get(PLAYERS_CACHE_KEY)
     if players is None:
@@ -108,13 +108,13 @@ def players():
         cache.set(PLAYERS_CACHE_KEY, players, timeout=PLAYERS_CACHE_TIMEOUT)
         cache.set(PREVIOUS_STATE_CACHE_KEY, players)
 
-    return json.dumps(players)
-
-
-@app.route('/timeleft/')
-def timeleft():
-    timeleft = cache.time_remaining(PLAYERS_CACHE_KEY) or 60
-    return json.dumps({'timeleft': timeleft})
+    return json.dumps(
+        dict(
+            players=players,
+            secondsLeft=cache.time_remaining(PLAYERS_CACHE_KEY),
+            cacheLifetime=PLAYERS_CACHE_TIMEOUT
+        )
+    )
 
 
 @app.route("/")

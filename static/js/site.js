@@ -1,18 +1,29 @@
 var PlayersTable = React.createClass({
   getInitialState: function () {
-    return { players: [] };
+    return { players: [], percent: 0 };
   },
 
   componentDidMount: function () {
     this.loadData();
-    setInterval(this.loadData.bind(this), 60 * 1000);
   },
 
   loadData: function () {
-    $.getJSON('/players/', function (players) {
+    $.getJSON('/api/', function (data) {
       this.setState({
-        players: players
+        players: data.players
       });
+
+      var self = this;
+      var nextRefresh = moment().add(data.secondsLeft, 'seconds');
+      var cacheLifetime = data.cacheLifetime;
+      var updateProgressBar = setInterval(function () {
+        var secondsLeft = nextRefresh.diff(moment(), 'seconds');
+        if (secondsLeft == 0) {
+          clearInterval(updateProgressBar);
+          self.loadData();
+        };
+        self.setState({ percent: Math.floor(secondsLeft / cacheLifetime * 100) });
+      }, 1000);
     }.bind(this));
   },
 
@@ -21,122 +32,122 @@ var PlayersTable = React.createClass({
     this.state.players.forEach(function (player) {
       rows.push(React.createElement(PlayerRow, { player: player, key: player.position }));
     });
-    var progressBar = React.createElement(ProgressBar, null);
+    var progressBar = React.createElement(ProgressBar, { percent: this.state.percent });
 
     var rowsA = rows.slice(0, 19);
     var rowsB = rows.slice(20, 39);
     var rowsC = rows.slice(40, 59);
 
     return React.createElement(
-      "div",
+      'div',
       null,
       progressBar,
       React.createElement(
-        "div",
-        { className: "col-xs-4" },
+        'div',
+        { className: 'col-xs-4' },
         React.createElement(
-          "table",
-          { className: "table table-striped" },
+          'table',
+          { className: 'table table-striped' },
           React.createElement(
-            "thead",
+            'thead',
             null,
             React.createElement(
-              "tr",
+              'tr',
               null,
               React.createElement(
-                "th",
+                'th',
                 null,
-                "#"
+                '#'
               ),
               React.createElement(
-                "th",
+                'th',
                 null,
-                "Player"
+                'Player'
               ),
               React.createElement(
-                "th",
+                'th',
                 null,
-                "Elo"
+                'Elo'
               ),
-              React.createElement("th", null)
+              React.createElement('th', null)
             )
           ),
           React.createElement(
-            "tbody",
+            'tbody',
             null,
             rowsA
           )
         )
       ),
       React.createElement(
-        "div",
-        { className: "col-xs-4" },
+        'div',
+        { className: 'col-xs-4' },
         React.createElement(
-          "table",
-          { className: "table table-striped" },
+          'table',
+          { className: 'table table-striped' },
           React.createElement(
-            "thead",
+            'thead',
             null,
             React.createElement(
-              "tr",
+              'tr',
               null,
               React.createElement(
-                "th",
+                'th',
                 null,
-                "#"
+                '#'
               ),
               React.createElement(
-                "th",
+                'th',
                 null,
-                "Player"
+                'Player'
               ),
               React.createElement(
-                "th",
+                'th',
                 null,
-                "Elo"
+                'Elo'
               ),
-              React.createElement("th", null)
+              React.createElement('th', null)
             )
           ),
           React.createElement(
-            "tbody",
+            'tbody',
             null,
             rowsB
           )
         )
       ),
       React.createElement(
-        "div",
-        { className: "col-xs-4" },
+        'div',
+        { className: 'col-xs-4' },
         React.createElement(
-          "table",
-          { className: "table table-striped" },
+          'table',
+          { className: 'table table-striped' },
           React.createElement(
-            "thead",
+            'thead',
             null,
             React.createElement(
-              "tr",
+              'tr',
               null,
               React.createElement(
-                "th",
+                'th',
                 null,
-                "#"
+                '#'
               ),
               React.createElement(
-                "th",
+                'th',
                 null,
-                "Player"
+                'Player'
               ),
               React.createElement(
-                "th",
+                'th',
                 null,
-                "Elo"
+                'Elo'
               ),
-              React.createElement("th", null)
+              React.createElement('th', null)
             )
           ),
           React.createElement(
-            "tbody",
+            'tbody',
             null,
             rowsC
           )
@@ -151,15 +162,15 @@ var PlayerRow = React.createClass({
     var diffNode = '';
     if (this.props.player.diff > 0) {
       diffNode = React.createElement(
-        "button",
-        { type: "button", className: "btn btn-success" },
-        "+",
+        'button',
+        { type: 'button', className: 'btn btn-success' },
+        '+',
         this.props.player.diff
       );
     } else if (this.props.player.diff < 0) {
       diffNode = React.createElement(
-        "button",
-        { type: "button", className: "btn btn-danger" },
+        'button',
+        { type: 'button', className: 'btn btn-danger' },
         this.props.player.diff
       );
     }
@@ -172,25 +183,25 @@ var PlayerRow = React.createClass({
     }
 
     return React.createElement(
-      "tr",
+      'tr',
       { className: trClass },
       React.createElement(
-        "th",
-        { scope: "row" },
+        'th',
+        { scope: 'row' },
         this.props.player.position
       ),
       React.createElement(
-        "td",
+        'td',
         null,
         this.props.player.name
       ),
       React.createElement(
-        "td",
+        'td',
         null,
         this.props.player.elo
       ),
       React.createElement(
-        "td",
+        'td',
         null,
         diffNode
       )
@@ -200,39 +211,17 @@ var PlayerRow = React.createClass({
 
 var ProgressBar = React.createClass({
 
-  getInitialState: function () {
-    return { percent: 100 };
-  },
-
-  setPercent: function (timeLeft) {
-    var next_refresh = moment().add(timeLeft, 'seconds');
-    var secondsLeft = next_refresh.diff(moment(), 'seconds');
-    this.setState({ percent: Math.floor(secondsLeft / 60 * 100) });
-  },
-
-  componentDidMount: function () {
-    this.setPercent();
-    setInterval(this.setPercent.bind(this), 3 * 1000);
-  },
-
-  getSecondsUntilNextUpdate: function () {
-    $.getJSON('/timeleft/', function (data) {
-      console.log(data);
-      this.setPercent(data['timeleft']);
-    }.bind(this));
-  },
-
   render: function () {
-    var style = { width: this.state.percent.toString() + '%' };
+    var style = { width: this.props.percent.toString() + '%' };
     return React.createElement(
-      "div",
-      { className: "progress" },
-      React.createElement("div", {
-        className: "progress-bar progress-bar-striped active",
-        role: "progressbar",
-        "aria-valuenow": "100",
-        "aria-valuemin": "0",
-        "aria-valuemax": "100",
+      'div',
+      { className: 'progress' },
+      React.createElement('div', {
+        className: 'progress-bar progress-bar-striped active',
+        role: 'progressbar',
+        'aria-valuenow': '100',
+        'aria-valuemin': '0',
+        'aria-valuemax': '100',
         style: style })
     );
   }

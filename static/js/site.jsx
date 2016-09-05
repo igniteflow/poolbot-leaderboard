@@ -1,18 +1,29 @@
 var PlayersTable = React.createClass({
   getInitialState: function() {
-      return {players: []}
+      return {players: [], percent: 0}
   },
 
   componentDidMount: function() {
     this.loadData();
-    setInterval(this.loadData.bind(this), 60 * 1000);
   },
 
   loadData: function() {
-    $.getJSON('/players/', function (players) {
+    $.getJSON('/api/', function (data) {
       this.setState({
-        players: players
+        players: data.players
       });
+
+      var self = this;
+      var nextRefresh = moment().add(data.secondsLeft, 'seconds');
+      var cacheLifetime = data.cacheLifetime;
+      var updateProgressBar = setInterval(function () {
+          var secondsLeft = nextRefresh.diff(moment(), 'seconds');
+          if (secondsLeft == 0) {
+            clearInterval(updateProgressBar);
+            self.loadData();
+          };
+          self.setState({percent: Math.floor((secondsLeft / cacheLifetime) * 100)});
+      }, 1000);
     }.bind(this));
   },
 
@@ -21,7 +32,7 @@ var PlayersTable = React.createClass({
     this.state.players.forEach(function(player) {
       rows.push(<PlayerRow player={player} key={player.position} />);
     });
-    var progressBar = <ProgressBar />;
+    var progressBar = <ProgressBar percent={this.state.percent} />;
 
     var rowsA = rows.slice(0, 19);
     var rowsB = rows.slice(20, 39);
@@ -111,30 +122,8 @@ var PlayerRow = React.createClass({
 
 var ProgressBar = React.createClass({
 
-  getInitialState: function() {
-    return {percent: 100}
-  },
-
-  setPercent: function(timeLeft){
-    var next_refresh = moment().add(timeLeft, 'seconds');
-    var secondsLeft = next_refresh.diff(moment(), 'seconds');
-    this.setState({percent: Math.floor((secondsLeft / 60) * 100)});
-  },
-
-  componentDidMount: function() {
-    this.setPercent(self.state.percent);
-    setInterval(this.setPercent.bind(this), 3 * 1000);
-  },
-
-  getSecondsUntilNextUpdate: function() {
-    $.getJSON('/timeleft/', function (data) {
-      console.log(data);
-      this.setPercent(data['timeleft']);
-    }.bind(this));
-  },
-
   render: function() {
-    var style = {width: this.state.percent.toString() + '%'}
+    var style = {width: this.props.percent.toString() + '%'}
     return (
       <div className="progress">
         <div
