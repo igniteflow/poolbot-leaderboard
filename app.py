@@ -70,12 +70,13 @@ def get_players():
         slack_names = cache.get(SLACK_NAMES_CACHE_KEY) or {}
         return [
             dict(
+                position=i,
                 name=slack_names.get(player['slack_id'], player['name']),
                 elo=player['elo'],
                 diff=get_diff(player),
                 slack_id=player['slack_id'],
             )
-            for player in players
+            for i, player in enumerate(players)
             if player['active'] and player['total_match_count'] > 0
         ]
     else:
