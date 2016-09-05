@@ -16,12 +16,12 @@ class Cache(object):
 
     def time_remaining(self, key):
         item = self._cache.get(key)
-        if item['timeout'] is not None:
+        if item and item.get('timeout'):
             elapsed = time.time() - item['start']
             return item['timeout'] - elapsed
 
     def has_expired(self, key):
         item = self._cache.get(key)
-        if item['timeout'] is None:
-            return False
-        return self.time_remaining(key) <= 0
+        if item.get('timeout'):
+            return self.time_remaining(key) <= 0
+        return False

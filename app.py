@@ -42,7 +42,7 @@ def slack_names():
     else:
         logging.error(content['error'])
 
-# slack_names()
+slack_names()
 
 
 def get_diff(player):
@@ -68,17 +68,20 @@ def get_players():
     if response.ok:
         players = response.json()
         slack_names = cache.get(SLACK_NAMES_CACHE_KEY) or {}
-        return [
-            dict(
-                position=i,
-                name=slack_names.get(player['slack_id'], player['name']),
-                elo=player['elo'],
-                diff=get_diff(player),
-                slack_id=player['slack_id'],
-            )
-            for i, player in enumerate(players)
-            if player['active'] and player['total_match_count'] > 0
-        ]
+        _players = []
+
+        i = 1
+        for player in players:
+            if player['active'] and player['total_match_count'] > 0:
+                _players.append(dict(
+                    name=slack_names.get(player['slack_id'], player['name']),
+                    elo=player['elo'],
+                    diff=get_diff(player),
+                    slack_id=player['slack_id'],
+                    position=i
+                ))
+                i += 1
+        return _players
     else:
         logging.error(response.content)
         return []
@@ -97,31 +100,26 @@ def send_css(path):
     return send_from_directory('css', path)
 
 
-def _dummmy_api_data():
-    from random import randint
-    return json.dumps(
-        [
-            {'name': 'John ' + str(i), 'elo': 1000, 'position': i, 'diff': randint(-10, 10)}
-            for i in range(50)
-        ]
-    )
-
-
-@app.route('/api/')
-def api():
-    return _dummmy_api_data()
+@app.route('/players/')
+def players():
     players = cache.get(PLAYERS_CACHE_KEY)
     if players is None:
         players = get_players()
         cache.set(PLAYERS_CACHE_KEY, players, timeout=PLAYERS_CACHE_TIMEOUT)
         cache.set(PREVIOUS_STATE_CACHE_KEY, players)
+
     return json.dumps(players)
+
+
+@app.route('/timeleft/')
+def timeleft():
+    timeleft = cache.time_remaining(PLAYERS_CACHE_KEY) or 60
+    return json.dumps({'timeleft': timeleft})
 
 
 @app.route("/")
 def index():
-    return render_template('react.html', time_left=20)
-    return render_template('react.html', time_left=cache.time_remaining(PLAYERS_CACHE_KEY))
+    return render_template('index.html')
 
 
 if __name__ == "__main__":
