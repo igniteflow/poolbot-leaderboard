@@ -109,7 +109,7 @@ def _dummmy_api_data():
 
 @app.route('/api/')
 def api():
-    # return _dummmy_api_data()
+    return _dummmy_api_data()
     players = cache.get(PLAYERS_CACHE_KEY)
     if players is None:
         players = get_players()
@@ -120,6 +120,7 @@ def api():
 
 @app.route("/")
 def index():
+    return render_template('react.html', time_left=20)
     return render_template('react.html', time_left=cache.time_remaining(PLAYERS_CACHE_KEY))
 
 

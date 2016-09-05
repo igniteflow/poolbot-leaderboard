@@ -1,57 +1,55 @@
 // 'use strict';
 
 $( document ).ready(function() {
-    'use strict';
+    "use strict";
 
 var PlayerRow = React.createClass({
-  displayName: 'PlayerRow',
-
-  trClass: function trClass() {
-    if (this.player.diff > 0) {
-      return 'success';
-    } else if (this.player.diff < 0) {
-      return 'danger';
-    }
-  },
+  displayName: "PlayerRow",
 
   render: function render() {
     var diffNode = '';
-    var diff = this.props.player.diff;
-    if (diff > 0) {
+    if (this.props.player.diff > 0) {
       diffNode = React.createElement(
-        'button',
-        { type: 'button', className: 'btn btn-success' },
-        '+',
-        diff
+        "button",
+        { type: "button", className: "btn btn-success" },
+        "+",
+        this.props.player.diff
       );
-    } else if (diff < 0) {
+    } else if (this.props.player.diff < 0) {
       diffNode = React.createElement(
-        'button',
-        { type: 'button', className: 'btn btn-danger' },
-        diff
+        "button",
+        { type: "button", className: "btn btn-danger" },
+        this.props.player.diff
       );
     }
 
+    var trClass = '';
+    if (this.props.player.diff > 0) {
+      trClass = 'success';
+    } else if (this.props.player.diff < 0) {
+      trClass = 'danger';
+    }
+
     return React.createElement(
-      'tr',
-      { className: '{this.trClass}' },
+      "tr",
+      { className: trClass },
       React.createElement(
-        'th',
-        { scope: 'row' },
+        "th",
+        { scope: "row" },
         this.props.player.position
       ),
       React.createElement(
-        'td',
+        "td",
         null,
         this.props.player.name
       ),
       React.createElement(
-        'td',
+        "td",
         null,
         this.props.player.elo
       ),
       React.createElement(
-        'td',
+        "td",
         null,
         diffNode
       )
@@ -60,7 +58,7 @@ var PlayerRow = React.createClass({
 });
 
 var PlayersTable = React.createClass({
-  displayName: 'PlayersTable',
+  displayName: "PlayersTable",
 
   getInitialState: function getInitialState() {
     return { players: [{ name: 'foo', position: 1, elo: 3, diff: 0 }] };
@@ -89,114 +87,114 @@ var PlayersTable = React.createClass({
     var rowsC = rows.slice(40, 59);
 
     return React.createElement(
-      'div',
+      "div",
       null,
       React.createElement(
-        'div',
-        { className: 'col-xs-4' },
+        "div",
+        { className: "col-xs-4" },
         React.createElement(
-          'table',
-          { className: 'table table-striped' },
+          "table",
+          { className: "table table-striped" },
           React.createElement(
-            'thead',
+            "thead",
             null,
             React.createElement(
-              'tr',
+              "tr",
               null,
               React.createElement(
-                'th',
+                "th",
                 null,
-                '#'
+                "#"
               ),
               React.createElement(
-                'th',
+                "th",
                 null,
-                'Player'
+                "Player"
               ),
               React.createElement(
-                'th',
+                "th",
                 null,
-                'Elo'
+                "Elo"
               ),
-              React.createElement('th', null)
+              React.createElement("th", null)
             )
           ),
           React.createElement(
-            'tbody',
+            "tbody",
             null,
             rowsA
           )
         )
       ),
       React.createElement(
-        'div',
-        { className: 'col-xs-4' },
+        "div",
+        { className: "col-xs-4" },
         React.createElement(
-          'table',
-          { className: 'table table-striped' },
+          "table",
+          { className: "table table-striped" },
           React.createElement(
-            'thead',
+            "thead",
             null,
             React.createElement(
-              'tr',
+              "tr",
               null,
               React.createElement(
-                'th',
+                "th",
                 null,
-                '#'
+                "#"
               ),
               React.createElement(
-                'th',
+                "th",
                 null,
-                'Player'
+                "Player"
               ),
               React.createElement(
-                'th',
+                "th",
                 null,
-                'Elo'
+                "Elo"
               ),
-              React.createElement('th', null)
+              React.createElement("th", null)
             )
           ),
           React.createElement(
-            'tbody',
+            "tbody",
             null,
             rowsB
           )
         )
       ),
       React.createElement(
-        'div',
-        { className: 'col-xs-4' },
+        "div",
+        { className: "col-xs-4" },
         React.createElement(
-          'table',
-          { className: 'table table-striped' },
+          "table",
+          { className: "table table-striped" },
           React.createElement(
-            'thead',
+            "thead",
             null,
             React.createElement(
-              'tr',
+              "tr",
               null,
               React.createElement(
-                'th',
+                "th",
                 null,
-                '#'
+                "#"
               ),
               React.createElement(
-                'th',
+                "th",
                 null,
-                'Player'
+                "Player"
               ),
               React.createElement(
-                'th',
+                "th",
                 null,
-                'Elo'
+                "Elo"
               ),
-              React.createElement('th', null)
+              React.createElement("th", null)
             )
           ),
           React.createElement(
-            'tbody',
+            "tbody",
             null,
             rowsC
           )
