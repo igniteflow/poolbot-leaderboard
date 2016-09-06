@@ -17,7 +17,8 @@ var PlayersTable = React.createClass({
       var nextRefresh = moment().add(data.secondsLeft, 'seconds');
       var cacheLifetime = data.cacheLifetime;
       var updateProgressBar = setInterval(function () {
-          var secondsLeft = nextRefresh.diff(moment(), 'seconds');
+          // Give server 3 more seconds to process the request
+          var secondsLeft = nextRefresh.diff(moment(), 'seconds') + 3;
           if (secondsLeft == 0) {
             clearInterval(updateProgressBar);
             self.loadData();
