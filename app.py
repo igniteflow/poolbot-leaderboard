@@ -9,9 +9,9 @@ from flask import (
     send_from_directory,
     json,
 )
+from auth import whitelisted_ips_only
 
 from cache import Cache
-
 
 SLACK_NAMES_CACHE_KEY = 'slack_name'
 PREVIOUS_STATE_CACHE_KEY = 'players_previous'
@@ -101,6 +101,7 @@ def send_css(path):
 
 
 @app.route('/api/')
+@whitelisted_ips_only
 def players():
     players = cache.get(PLAYERS_CACHE_KEY)
     if players is None:
@@ -118,6 +119,7 @@ def players():
 
 
 @app.route("/")
+@whitelisted_ips_only
 def index():
     return render_template('index.html')
 
