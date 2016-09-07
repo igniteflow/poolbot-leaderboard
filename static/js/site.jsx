@@ -34,9 +34,9 @@ var PlayersTable = React.createClass({
     });
     var progressBar = <ProgressBar percent={this.state.percent} />;
 
-    var rowsA = rows.slice(0, 19);
-    var rowsB = rows.slice(20, 39);
-    var rowsC = rows.slice(40, 59);
+    var rowsA = rows.slice(0, 20);
+    var rowsB = rows.slice(20, 40);
+    var rowsC = rows.slice(40, 60);
 
     return (
       <div>
