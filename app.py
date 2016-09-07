@@ -9,9 +9,9 @@ from flask import (
     send_from_directory,
     json,
 )
+from auth import whitelisted_ips_only
 
 from cache import Cache
-
 
 SLACK_NAMES_CACHE_KEY = 'slack_name'
 PREVIOUS_STATE_CACHE_KEY = 'players_previous'
@@ -19,7 +19,7 @@ PLAYERS_CACHE_KEY = 'players'
 POOLBOT_PLAYERS_API_URL = os.environ.get('POOLBOT_URL')
 POOLBOT_AUTH_TOKEN = os.environ.get('POOLBOT_TOKEN')
 SLACK_API_TOKEN = os.environ.get('SLACK_API_TOKEN')
-PLAYERS_CACHE_TIMEOUT = 10
+PLAYERS_CACHE_TIMEOUT = 30
 
 cache = Cache()
 
@@ -101,6 +101,7 @@ def send_css(path):
 
 
 @app.route('/api/')
+@whitelisted_ips_only
 def players():
     players = cache.get(PLAYERS_CACHE_KEY)
     if players is None:
@@ -118,6 +119,7 @@ def players():
 
 
 @app.route("/")
+@whitelisted_ips_only
 def index():
     return render_template('index.html')
 
