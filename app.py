@@ -9,7 +9,6 @@ from flask import (
     send_from_directory,
     json,
 )
-from auth import whitelisted_ips_only
 
 from cache import Cache
 
@@ -41,8 +40,6 @@ def slack_names():
         })
     else:
         logging.error(content['error'])
-
-slack_names()
 
 
 def get_diff(player):
@@ -101,13 +98,19 @@ def send_css(path):
 
 
 @app.route('/api/')
-@whitelisted_ips_only
 def players():
     players = cache.get(PLAYERS_CACHE_KEY)
     if players is None:
         players = get_players()
-        cache.set(PLAYERS_CACHE_KEY, players, timeout=PLAYERS_CACHE_TIMEOUT)
-        cache.set(PREVIOUS_STATE_CACHE_KEY, players)
+        no_change = set([p['diff'] for p in players]) == set([0])
+        if no_change:
+            # nothing's changed, keep the current last played game(s)
+            previous_state = cache.get(PREVIOUS_STATE_CACHE_KEY)
+            cache.set(PLAYERS_CACHE_KEY, previous_state, timeout=PLAYERS_CACHE_TIMEOUT)
+        else:
+            # someone's played, update the table
+            cache.set(PLAYERS_CACHE_KEY, players, timeout=PLAYERS_CACHE_TIMEOUT)
+            cache.set(PREVIOUS_STATE_CACHE_KEY, players)
 
     return json.dumps(
         dict(
@@ -119,10 +122,10 @@ def players():
 
 
 @app.route("/")
-@whitelisted_ips_only
 def index():
     return render_template('index.html')
 
 
 if __name__ == "__main__":
+    slack_names()
     app.run(debug=True, threaded=True)
