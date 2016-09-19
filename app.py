@@ -1,6 +1,8 @@
 import logging
 import os
 
+from collections import OrderedDict
+
 import requests
 
 from flask import (
@@ -64,21 +66,22 @@ def get_players():
 
     if response.ok:
         players = response.json()
-        slack_names = cache.get(SLACK_NAMES_CACHE_KEY) or {}
-        _players = []
 
-        i = 1
-        for player in players:
-            if player['active'] and player['total_match_count'] > 0:
-                _players.append(dict(
-                    name=slack_names.get(player['slack_id'], player['name']),
-                    elo=player['elo'],
-                    diff=get_diff(player),
-                    slack_id=player['slack_id'],
-                    position=i
-                ))
-                i += 1
-        return _players
+        if not set([player['elo'] for player in players]) - set([0]):
+            # all elo values were zero, so exit
+            return
+
+        slack_names = cache.get(SLACK_NAMES_CACHE_KEY) or {}
+        return OrderedDict((
+            (player['slack_id'], dict(
+                name=slack_names.get(player['slack_id'], player['name']),
+                elo=player['elo'],
+                diff=get_diff(player),
+                slack_id=player['slack_id'],
+            ))
+            for player in players
+            if player['active'] and player['total_match_count'] > 0
+        ))
     else:
         logging.error(response.content)
         return []
