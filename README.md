@@ -11,5 +11,5 @@ A simple app written in Flask and React to fetch and render poolbot results from
 
     mkvirtualenv pool
     pip install -r requirements.txt
-    gulp
+    gulp  # build the required javascript from jsx
     python app.py

@@ -35,9 +35,9 @@ var PlayersTable = React.createClass({
     });
     var progressBar = React.createElement(ProgressBar, { percent: this.state.percent });
 
-    var rowsA = rows.slice(0, 19);
-    var rowsB = rows.slice(20, 39);
-    var rowsC = rows.slice(40, 59);
+    var rowsA = rows.slice(0, 20);
+    var rowsB = rows.slice(20, 40);
+    // var rowsC = rows.slice(40, 60);
 
     return React.createElement(
       'div',
@@ -116,43 +116,6 @@ var PlayersTable = React.createClass({
             rowsB
           )
         )
-      ),
-      React.createElement(
-        'div',
-        { className: 'col-xs-4' },
-        React.createElement(
-          'table',
-          { className: 'table table-striped' },
-          React.createElement(
-            'thead',
-            null,
-            React.createElement(
-              'tr',
-              null,
-              React.createElement(
-                'th',
-                null,
-                '#'
-              ),
-              React.createElement(
-                'th',
-                null,
-                'Player'
-              ),
-              React.createElement(
-                'th',
-                null,
-                'Elo'
-              ),
-              React.createElement('th', null)
-            )
-          ),
-          React.createElement(
-            'tbody',
-            null,
-            rowsC
-          )
-        )
       )
     );
   }
@@ -199,7 +162,7 @@ var PlayerRow = React.createClass({
       React.createElement(
         'td',
         null,
-        this.props.player.elo
+        this.props.player.season_elo
       ),
       React.createElement(
         'td',

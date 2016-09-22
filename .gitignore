@@ -1,1 +1,4 @@
 node_modules/
+
+# js is generated from jsx by Babel by running `gulp`
+static/js/site.js

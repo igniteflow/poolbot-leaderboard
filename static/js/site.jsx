@@ -37,7 +37,7 @@ var PlayersTable = React.createClass({
 
     var rowsA = rows.slice(0, 20);
     var rowsB = rows.slice(20, 40);
-    var rowsC = rows.slice(40, 60);
+    // var rowsC = rows.slice(40, 60);
 
     return (
       <div>
@@ -74,21 +74,6 @@ var PlayersTable = React.createClass({
           </table>
         </div>
 
-        <div className="col-xs-4">
-          <table className="table table-striped">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Player</th>
-                    <th>Elo</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {rowsC}
-            </tbody>
-          </table>
-        </div>
       </div>
     );
   }
@@ -114,7 +99,7 @@ var PlayerRow = React.createClass({
       <tr className={trClass}>
           <th scope="row">{this.props.player.position}</th>
           <td>{this.props.player.name}</td>
-          <td>{this.props.player.elo}</td>
+          <td>{this.props.player.season_elo}</td>
           <td>{diffNode}</td>
       </tr>
     );

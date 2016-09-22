@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# ensure screen is inverted
+xrandr --output HDMI1 --rotate inverted --display :0.0
+
 # disable screensaver
 export DISPLAY=:0.0
 xset s off
@@ -14,4 +17,4 @@ killall -15 chromium-browser
 export FLASK_APP='app.py'
 # nohup gunicorn -w 1 -b 127.0.0.1:5000 app:app >&/dev/null &
 nohup flask run --host=0.0.0.0 >&/dev/null &
-chromium-browser --start-fullscreen --display=:0 http://127.0.0.1:5000 >&/dev/null &
+chromium-browser --incognito --kiosk --start-fullscreen --display=:0 http://127.0.0.1:5000 >&/dev/null &

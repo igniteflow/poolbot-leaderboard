@@ -1,8 +1,6 @@
 import logging
 import os
 
-from collections import OrderedDict
-
 import requests
 
 from flask import (
@@ -43,12 +41,14 @@ def slack_names():
     else:
         logging.error(content['error'])
 
+slack_names()
+
 
 def get_diff(player):
-    """returns num elo points gained/lost since the previous state"""
+    """returns num season_elo points gained/lost since the previous state"""
     for player_previous_state in cache.get(PREVIOUS_STATE_CACHE_KEY) or []:
         if player_previous_state['slack_id'] == player['slack_id']:
-            return player['elo'] - player_previous_state['elo']
+            return player['season_elo'] - player_previous_state['season_elo']
     return 0
 
 
@@ -57,7 +57,7 @@ def get_players():
         POOLBOT_PLAYERS_API_URL,
         params=dict(
             active=True,
-            ordering='-elo',
+            ordering='-season_elo',
         ),
         headers=dict(
             Authorization='Token {}'.format(POOLBOT_AUTH_TOKEN),
@@ -66,22 +66,24 @@ def get_players():
 
     if response.ok:
         players = response.json()
-
-        if not set([player['elo'] for player in players]) - set([0]):
-            # all elo values were zero, so exit
-            return
-
         slack_names = cache.get(SLACK_NAMES_CACHE_KEY) or {}
-        return OrderedDict((
-            (player['slack_id'], dict(
+
+        _players = [
+            dict(
                 name=slack_names.get(player['slack_id'], player['name']),
-                elo=player['elo'],
+                season_elo=player['season_elo'],
                 diff=get_diff(player),
                 slack_id=player['slack_id'],
-            ))
+            )
             for player in players
-            if player['active'] and player['total_match_count'] > 0
-        ))
+            if player['active'] and player['season_match_count'] > 0
+        ]
+
+        # add positions
+        for position, p in enumerate(_players, start=1):
+            p['position'] = position
+
+        return _players
     else:
         logging.error(response.content)
         return []
@@ -102,13 +104,21 @@ def send_css(path):
 
 @app.route('/api/')
 def players():
-    players = cache.get(PLAYERS_CACHE_KEY)
-    if players is None:
+    current_state = cache.get(PLAYERS_CACHE_KEY)
+    previous_state = cache.get(PREVIOUS_STATE_CACHE_KEY)
+
+    if not current_state and not previous_state:
+        # intialise
         players = get_players()
+        cache.set(PLAYERS_CACHE_KEY, players, timeout=PLAYERS_CACHE_TIMEOUT)
+        cache.set(PREVIOUS_STATE_CACHE_KEY, players)
+    elif current_state is None:
+        # cache has expired, refresh the players list
+        players = get_players()
+
         no_change = set([p['diff'] for p in players]) == set([0])
         if no_change:
-            # nothing's changed, keep the current last played game(s)
-            previous_state = cache.get(PREVIOUS_STATE_CACHE_KEY)
+            # elo hasn't changed meaning no one has played
             cache.set(PLAYERS_CACHE_KEY, previous_state, timeout=PLAYERS_CACHE_TIMEOUT)
         else:
             # someone's played, update the table
@@ -117,7 +127,7 @@ def players():
 
     return json.dumps(
         dict(
-            players=players,
+            players=cache.get(PLAYERS_CACHE_KEY),
             secondsLeft=cache.time_remaining(PLAYERS_CACHE_KEY),
             cacheLifetime=PLAYERS_CACHE_TIMEOUT
         )
