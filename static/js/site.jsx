@@ -31,7 +31,7 @@ var PlayersTable = React.createClass({
   render: function() {
     var rows = [];
     this.state.players.forEach(function(player) {
-      rows.push(<PlayerRow player={player} key={player.position} />);
+      rows.push(<PlayerRow player={player} key={player.id} />);
     });
     var progressBar = <ProgressBar percent={this.state.percent} />;
 

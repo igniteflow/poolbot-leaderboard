@@ -79,9 +79,21 @@ def get_players():
             if player['active'] and player['season_match_count'] > 0
         ]
 
-        # add positions
-        for position, p in enumerate(_players, start=1):
-            p['position'] = position
+        # this code is horrible spaghetti, please forgive me
+        position = 1
+        for idx, player in enumerate(_players):
+            player['id'] = idx
+            if idx == 0:
+                # first place - no previous player to compare
+                player['position'] = position
+                position += 1
+            else:
+                previous_player = _players[idx-1]
+                if previous_player['season_elo'] == player['season_elo']:
+                    player['position'] = '-'
+                else:
+                    player['position'] = position
+                    position += 1
 
         return _players
     else:
