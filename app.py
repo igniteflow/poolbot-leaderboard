@@ -86,14 +86,13 @@ def get_players():
             if idx == 0:
                 # first place - no previous player to compare
                 player['position'] = position
-                position += 1
             else:
                 previous_player = _players[idx-1]
                 if previous_player['season_elo'] == player['season_elo']:
                     player['position'] = '-'
                 else:
                     player['position'] = position
-                    position += 1
+            position += 1
 
         return _players
     else:
